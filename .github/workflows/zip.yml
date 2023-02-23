@@ -4,12 +4,29 @@ on:
     types:
       - closed
 jobs:
+    detect-directory-changes:
+        name: "Detect Directory Changes"
+        runs-on: ubuntu-latest
+        outputs:
+          changed: ${{ steps.detect.outputs.changed }}
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
+
+          - name: Detect Directory Changes
+            id: detect
+            uses: tchupp/actions-detect-directory-changes@v1
     zip:
         if: github.event.pull_request.merged == true
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                project: ${{ fromJSON(needs.detect-directory-changes.outputs.changed) }}
         steps:
           - uses: actions/checkout@v2
-          - run: sh ./.github/zip.sh
+          - name: Build ${{ matrix.project }}
+            working-directory: ./${{ matrix.project }}
+            run: ./.github/zip.sh
           - name: Create Pull Request
             id: cpr
             uses: peter-evans/create-pull-request@v4.2.3
