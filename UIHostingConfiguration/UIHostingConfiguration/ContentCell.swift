@@ -18,6 +18,8 @@ struct ContentCell: View {
                 .font(.title)
                 .bold()
             HStack {
+
+                
                 Text(subTitle)
                     .font(.title3)
                 Text(Date().formatted())
